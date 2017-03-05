@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleExpandableListAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,8 @@ public class DiscussionActivity extends ActionBarActivity {
     ListView messages;
     EditText text;
     List<Message> messageHistory;
-    String[] messageStrings;
+    List<String> messageList;
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,13 +28,23 @@ public class DiscussionActivity extends ActionBarActivity {
         setContentView(R.layout.discussion);
         messages = (ListView)findViewById(R.id.messageList);
         text = (EditText)findViewById(R.id.editText);
-        messageHistory = MessagesBroker.getMessages(CountrySelection.getSelectedTopic(), null);
-        messageStrings = new String[messageHistory.size()];
+//        CountrySelection.getSelectedTopic()
+        messageHistory = MessagesBroker.getMessages(CountrySelection.getSelectedTopic(), new MessagesBroker.MessageCallBack() {
+            @Override
+            public void onMessage(Message message) {
+                if (!message.from.equals(FeelGood.getLoginName())) {
+                    messageList.add(message.toString());
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+        messageList = new ArrayList<String>();
         int count = 0;
         for(Message m: messageHistory){
-            messageStrings[count] = m.toString();
+            messageList.add(m.toString());
         }
-        messages.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, messageStrings));
+        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, messageList);
+        messages.setAdapter(adapter);
     }
 
     public void postClicked(View view){
@@ -40,7 +52,9 @@ public class DiscussionActivity extends ActionBarActivity {
         String entry = text.getText().toString();
         String discussionTopic = CountrySelection.getSelectedTopic();
         Message m = new Message(1,"",username, entry, discussionTopic);
-        MessagesBroker.addMessage(m);
-        text.setText(username + " " + entry + " " + discussionTopic);
+        MessagesBroker.addMessageAsync(m);
+        messageList.add(m.toString());
+        adapter.notifyDataSetChanged();
+        text.setText("");
     }
 }

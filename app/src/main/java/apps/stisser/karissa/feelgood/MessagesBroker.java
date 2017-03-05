@@ -129,7 +129,7 @@ public class MessagesBroker {
                 if (newMessgaes.size() != 0) {
                     allMessages.addAll(newMessgaes);
                     for (int i=0; i<newMessgaes.size(); i++) {
-                        String chatroom = newMessgaes.get(i).getAsJsonArray().get(2).toString();
+                        String chatroom = newMessgaes.get(i).getAsJsonArray().get(2).toString().replace("\"","");
                         if (callBackMap.get(chatroom) != null)
                             callBackMap.get(chatroom).onMessage(new Message(newMessgaes.get(i).getAsJsonArray()));
                     }

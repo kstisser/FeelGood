@@ -45,7 +45,8 @@ public class CountrySelection extends ActionBarActivity implements AdapterView.O
     }
 
     public static String getSelectedTopic(){
-        return selectedTopic;
+
+        return selectedTopic;//selectedTopic;
     }
 
     public void discussionClicked(View view){
